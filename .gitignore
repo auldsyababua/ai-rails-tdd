@@ -68,3 +68,7 @@ test-output/
 # n8n
 *.n8n
 n8n-backup/
+# Local configuration files
+.black.local.toml
+.ruff.local.toml
+*.local.toml
