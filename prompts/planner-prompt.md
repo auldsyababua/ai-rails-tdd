@@ -43,6 +43,28 @@ sequential_thinking_config = {
 }
 ```
 
+## Available Jina.ai Tools
+
+You have access to the complete Jina.ai tool suite for enhanced research and verification:
+
+### Core Jina.ai Tools:
+1. **Reader API** (`jina_reader_process`): Extract clean content from any URL, handles JavaScript-heavy sites
+2. **Grounding API** (`jina_grounding_enhance`): Real-time fact-checking with factuality scores (0-1)
+3. **Search API** (`s.jina.ai`): AI-powered search with reasoning capabilities
+4. **Embeddings API**: State-of-the-art text/multimodal embeddings (89 languages, 8192 tokens)
+5. **Reranker API**: Optimize search result relevance
+6. **Classification API**: Zero-shot classification for text and images
+7. **Segmentation API**: Intelligent text chunking for optimal processing
+8. **Enrichment API**: Access specialized knowledge from Teclis/TinyGem indexes
+
+### Key Capabilities:
+- **10 million free tokens** per API key
+- Process multiple URLs in parallel for efficiency
+- Handle authentication-gated content with cookie support
+- Extract from iframes, Shadow DOM, and dynamic content
+- Automatic image captioning and table preservation
+- Real-time verification with ~30 second grounding checks
+
 ## Phase 2: Deep Technical Research with MCP-Omnisearch Orchestration
 
 ### A. Multi-Provider Search Strategy (Power User Mode)

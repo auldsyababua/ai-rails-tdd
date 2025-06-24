@@ -1,0 +1,28 @@
+{
+  "feature_name": "redis-integration",
+  "test_file_path": "03_test_output.py",
+  "code_file_path": "05_code_output.py",
+  "review_criteria": [
+    "correctness",
+    "security",
+    "performance",
+    "style",
+    "test_coverage",
+    "error_handling",
+    "documentation"
+  ],
+  "specific_concerns": [
+    "Connection pooling efficiency",
+    "Thread safety in concurrent scenarios",
+    "Proper error propagation",
+    "Memory leak prevention",
+    "TTL implementation accuracy",
+    "Data serialization edge cases"
+  ],
+  "compliance_checks": [
+    "All tests pass",
+    "No hardcoded credentials",
+    "Proper logging practices",
+    "Resource cleanup in all paths"
+  ]
+}
