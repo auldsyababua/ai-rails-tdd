@@ -22,7 +22,8 @@ Create a folder structure that mirrors the agent workflow:
 ```
 inputs-to-outputs/
 └── feature-name/
-    ├── 01_planning_output.json      # Planner agent output
+    ├── 00_planning_doc.md          # Planner human-readable design doc
+    ├── 01_planning_output.json     # Planner machine-readable output
     ├── 02_for_tester.json          # Processed input for test designer
     ├── 03_test_output.py           # Test designer output
     ├── 04_for_coder.json           # Processed input for coder
@@ -65,6 +66,12 @@ class AgentRouter:
         """Validate that agent output matches expected schema"""
         return self.contracts[agent_name].validate(output)
     
+    def validate_planner_outputs(self, doc_path: str, json_path: str) -> bool:
+        """Special validation for planner's dual outputs"""
+        # Validate markdown document exists and has required sections
+        # Validate JSON matches schema and aligns with doc
+        return True
+    
     def route(self, from_agent: str, to_agent: str, data: dict):
         """Route data from one agent to another with validation"""
         if not self.validate_output(from_agent, data):
@@ -97,7 +104,14 @@ class AgentRouter:
 
 ### Phase 2 Tasks:
 1. Define JSON schemas for each agent's output
+   - Planner: Dual output validation (MD + JSON)
+   - Tester: Python test file validation
+   - Coder: Implementation file validation
+   - Reviewer: Review report validation
 2. Implement validation logic
+   - Schema validation for JSON outputs
+   - Syntax validation for Python files
+   - Cross-validation between planner outputs
 3. Create router service
 4. Integrate with n8n workflows
 5. Add monitoring and error handling

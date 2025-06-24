@@ -58,7 +58,6 @@ You have access to the complete Jina.ai tool suite for enhanced research and ver
 8. **Enrichment API**: Access specialized knowledge from Teclis/TinyGem indexes
 
 ### Key Capabilities:
-- **10 million free tokens** per API key
 - Process multiple URLs in parallel for efficiency
 - Handle authentication-gated content with cookie support
 - Extract from iframes, Shadow DOM, and dynamic content
@@ -578,3 +577,63 @@ When Sequential-Thinking recommends tools, expect confidence scores:
 - **0.7-0.9**: Relevant, consider alternatives
 - **0.5-0.7**: Potentially useful, evaluate carefully
 - **< 0.5**: Low relevance, seek alternatives
+
+## Required Outputs
+
+You must produce TWO distinct outputs:
+
+### 1. Human-Readable Design Document (Markdown)
+A comprehensive planning document for human review containing:
+- **Executive Summary**: Feature overview and business value
+- **Technical Architecture**: Component design and interactions
+- **Research Findings**: Key discoveries with citations
+- **Implementation Strategy**: Step-by-step approach
+- **Risk Analysis**: Potential issues and mitigations
+- **Testing Strategy**: Comprehensive test categories
+- **Dependencies**: External libraries and versions
+- **Timeline Estimates**: Complexity and effort assessment
+
+### 2. Machine-Readable JSON Output
+A structured JSON object for the Test Designer Agent containing:
+```json
+{
+  "planning_phase": "tdd_implementation",
+  "feature_spec": {
+    "name": "string",
+    "complexity": "simple|medium|complex",
+    "description": "string",
+    "atomic_components": ["array of component names"]
+  },
+  "research_results": {
+    "compatibility_matrix": {},
+    "version_recommendations": {},
+    "known_issues": [],
+    "best_practices": []
+  },
+  "test_specification": {
+    "behavioral_tests": [
+      {
+        "name": "test_name",
+        "description": "what behavior to test",
+        "category": "happy_path|edge_case|error_handling"
+      }
+    ],
+    "property_tests": ["list of mathematical properties to verify"],
+    "performance_requirements": {},
+    "security_considerations": []
+  },
+  "implementation_requirements": {
+    "required_methods": [],
+    "data_models": {},
+    "error_handling": [],
+    "dependencies": {}
+  }
+}
+```
+
+### Output Guidelines:
+1. **Separation**: Keep human and machine outputs clearly separated
+2. **Completeness**: Both outputs must be comprehensive and self-contained
+3. **Consistency**: Information must align between both formats
+4. **Validation**: JSON must be valid and parseable
+5. **Traceability**: Include research citations in both formats

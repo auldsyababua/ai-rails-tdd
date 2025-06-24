@@ -1,0 +1,22 @@
+# Agent Access Restrictions
+
+# This file defines folders and files that AI agents should NOT access
+# unless explicitly provided in the conversation
+
+# Folders restricted from agent access
+RESTRICTED_FOLDERS:
+  - /inputs-to-outputs/redis-integration-actual
+  - /inputs-to-outputs/blind-test-scenarios
+  - /test-isolation
+  - /agent-sandbox
+
+# Files restricted from agent access
+RESTRICTED_FILES:
+  - /secrets.env
+  - /.env.production
+
+# Patterns to exclude (glob patterns)
+RESTRICTED_PATTERNS:
+  - "**/blind-test-*"
+  - "**/isolated-*"
+  - "**/sandbox-*"

@@ -68,7 +68,24 @@ test-output/
 # n8n
 *.n8n
 n8n-backup/
+
 # Local configuration files
 .black.local.toml
 .ruff.local.toml
 *.local.toml
+
+# Inputs/Outputs directory - ignore contents but not the directory
+inputs-to-outputs/*
+!inputs-to-outputs/.gitkeep
+!inputs-to-outputs/README.md
+!inputs-to-outputs/example-email-validator/
+!inputs-to-outputs/example-email-validator/**
+
+# Blind testing directories - should never be committed
+inputs-to-outputs/*-actual/
+inputs-to-outputs/*-blind/
+test-isolation/
+agent-sandbox/
+blind-tests/
+*.secret
+.env.production

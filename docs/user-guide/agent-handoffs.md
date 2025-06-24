@@ -12,14 +12,15 @@ All agent handoffs are stored in the `inputs-to-outputs/` directory:
 inputs-to-outputs/
 ├── README.md                    # Documentation
 ├── feature-name-1/             # Each feature gets its own folder
-│   ├── 01_planning_output.json
-│   ├── 02_for_tester.json
-│   ├── 03_test_output.py
-│   ├── 04_for_coder.json
-│   ├── 05_code_output.py
-│   ├── 06_for_reviewer.json
-│   ├── 07_review_output.md
-│   └── 08_final_approved/
+│   ├── 00_planning_doc.md      # Human-readable design document
+│   ├── 01_planning_output.json # Machine-readable for test designer
+│   ├── 02_for_tester.json      # Processed input for test designer
+│   ├── 03_test_output.py       # Generated tests
+│   ├── 04_for_coder.json       # Requirements for coder
+│   ├── 05_code_output.py       # Implementation
+│   ├── 06_for_reviewer.json    # Review request
+│   ├── 07_review_output.md     # Review findings
+│   └── 08_final_approved/      # Production-ready files
 │       ├── test_feature.py
 │       └── feature.py
 └── feature-name-2/
@@ -38,18 +39,38 @@ mkdir inputs-to-outputs/my-new-feature
 
 ### 2. Planning Phase
 
-The **Planner Agent** creates `01_planning_output.json`:
+The **Planner Agent** creates TWO outputs:
 
+#### A. Human-Readable Document (`00_planning_doc.md`):
+- Executive summary and business value
+- Technical architecture and design decisions
+- Research findings with citations
+- Risk analysis and mitigations
+- Implementation strategy
+- Timeline and complexity estimates
+
+#### B. Machine-Readable JSON (`01_planning_output.json`):
 ```json
 {
-  "feature_name": "my-new-feature",
-  "description": "Clear description of what needs to be built",
-  "requirements": [
-    "List of specific requirements",
-    "Extracted from planning document"
-  ],
-  "test_categories": ["suggested test types"],
-  "complexity": "simple|medium|complex"
+  "planning_phase": "tdd_implementation",
+  "feature_spec": {
+    "name": "my-new-feature",
+    "complexity": "simple|medium|complex",
+    "description": "Clear description",
+    "atomic_components": ["component list"]
+  },
+  "research_results": {
+    "compatibility_matrix": {},
+    "version_recommendations": {},
+    "known_issues": [],
+    "best_practices": []
+  },
+  "test_specification": {
+    "behavioral_tests": [],
+    "property_tests": [],
+    "performance_requirements": {},
+    "security_considerations": []
+  }
 }
 ```
 
