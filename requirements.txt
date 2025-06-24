@@ -36,3 +36,12 @@ click==8.1.7  # For CLI tools
 
 # Optional: For property-based testing
 hypothesis==6.108.5
+
+# Redis for state management
+redis==5.0.1  # Async Redis client with connection pooling
+
+# Vector search
+upstash-vector==0.3.0  # Upstash Vector client for semantic search
+
+# OpenAI for embeddings
+openai==1.35.0  # OpenAI API client for generating embeddings

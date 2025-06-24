@@ -80,6 +80,8 @@ inputs-to-outputs/*
 !inputs-to-outputs/README.md
 !inputs-to-outputs/example-email-validator/
 !inputs-to-outputs/example-email-validator/**
+!inputs-to-outputs/redis-state-management/
+!inputs-to-outputs/redis-state-management/**
 
 # Blind testing directories - should never be committed
 inputs-to-outputs/*-actual/
