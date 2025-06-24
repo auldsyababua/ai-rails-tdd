@@ -15,6 +15,12 @@ import json
 import uuid
 from datetime import datetime
 import logging
+import os
+import sys
+
+# Add parent directory to path for imports
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from utils.redis_manager import redis_manager
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -70,12 +76,18 @@ async def create_approval_request(request: ApprovalRequest):
     approval_id = str(uuid.uuid4())
 
     # Store the request
-    pending_approvals[approval_id] = {
+    approval_data = {
         "id": approval_id,
         "request": request.dict(),
         "status": "pending",
         "created_at": datetime.now().isoformat(),
     }
+    
+    # Try Redis first, fallback to memory
+    if redis_manager.enabled:
+        redis_manager.create_approval_request(approval_id, approval_data)
+    else:
+        pending_approvals[approval_id] = approval_data
 
     approval_url = f"http://localhost:8000/approve/{approval_id}"
 

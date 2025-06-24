@@ -8,11 +8,10 @@ Based on your environment, you have these MCPs available:
 - **CodebaseSummaryMCP** (`http://localhost:8003`) - Analyze existing codebases
 - **SecretsMCP** (`http://localhost:8005`) - Secure API key management
 
-### 2. **Global MCPs** (Via Claude)
-- **brave-search** - Web search for research
+### 2. **Global MCPs**
+- **mcp-omnisearch** - Multi-source web search and content extraction
 - **context7** - Documentation retrieval
 - **mcp-sequentialthinking-tools** - Advanced reasoning
-- **mcp-omnisearch** - Multi-source search
 - **github** - Code repository operations
 - **memory** - Knowledge graph storage
 - **todoist** - Task management
@@ -43,7 +42,7 @@ curl -X POST http://localhost:11434/api/pull -d '{
 
 ### 1. **Research-Enhanced TDD**
 Add a research step before test generation:
-- Use **brave-search** to find best practices
+- Use **mcp-omnisearch** to find best practices
 - Use **context7** to get framework documentation
 - Feed research into test generation
 
@@ -96,7 +95,7 @@ Here's how to add MCP calls to your n8n workflow:
 ## Future Enhancements
 
 1. **Pre-Test Research Node**: 
-   - Query brave-search for "email validation best practices"
+   - Query mcp-omnisearch for "email validation best practices"
    - Get testing patterns from context7
    - Include findings in test generation prompt
 

@@ -1,0 +1,31 @@
+{
+  "feature_name": "redis-integration",
+  "description": "Add Redis support for caching workflow state and managing session data across TDD cycles",
+  "requirements": [
+    "Connect to Redis instance (local or remote)",
+    "Store and retrieve planning documents",
+    "Cache generated tests and implementations",
+    "Track approval history and feedback",
+    "Support TTL for automatic cleanup",
+    "Handle connection failures gracefully"
+  ],
+  "test_categories": [
+    "connection_tests",
+    "crud_operations",
+    "error_handling",
+    "ttl_expiration",
+    "concurrent_access",
+    "data_serialization"
+  ],
+  "complexity": "medium",
+  "dependencies": [
+    "redis-py>=4.0.0",
+    "python-json-logger"
+  ],
+  "estimated_effort": "3-5 hours",
+  "risks": [
+    "Redis connection timeouts in CI/CD",
+    "Memory usage with large documents",
+    "Concurrent modification conflicts"
+  ]
+}

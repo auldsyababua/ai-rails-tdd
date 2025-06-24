@@ -46,7 +46,7 @@ This MVP does NOT:
 
 ### Step 1: Fill Out Planning Document
 
-Use `docs/PLANNING_TEMPLATE.md` to describe your feature:
+Use `prompts/planner-prompt.md` to describe your feature:
 ```markdown
 **Feature Name**: Email Validator
 **Feature Description**: Validates email addresses using regex

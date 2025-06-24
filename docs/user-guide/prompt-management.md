@@ -11,9 +11,10 @@ Prompts are stored as markdown files in the `prompts/` directory:
 ```
 ai-rails-tdd/
 └── prompts/
-    ├── test_generator.md    # Instructions for test generation
-    ├── code_generator.md    # Instructions for code generation
-    └── code_reviewer.md     # Instructions for code review (optional)
+    ├── tester-prompt.md     # Instructions for test generation
+    ├── coder-prompt.md      # Instructions for code generation
+    ├── reviewer-prompt.md   # Instructions for code review
+    └── planner-prompt.md    # Instructions for planning
 ```
 
 ## Editing Prompts
@@ -28,9 +29,9 @@ ai-rails-tdd/
 2. Edit the prompt file:
    ```bash
    # Using your favorite editor
-   vim test_generator.md
+   vim tester-prompt.md
    # or
-   code test_generator.md
+   code tester-prompt.md
    ```
 
 3. Save your changes - they'll be used immediately
@@ -46,7 +47,7 @@ Create custom prompts for a specific project:
 
 2. Copy and customize prompts:
    ```bash
-   cp /path/to/ai-rails-tdd/prompts/test_generator.md .ai-rails/prompts/
+   cp /path/to/ai-rails-tdd/prompts/tester-prompt.md .ai-rails/prompts/
    # Edit the local copy
    ```
 
@@ -95,7 +96,7 @@ The portable workflows now support loading prompts dynamically. In the workflow:
 1. Add a Code node to load prompts:
    ```javascript
    const fs = require('fs');
-   const promptPath = process.env.AI_RAILS_HOME + '/prompts/test_generator.md';
+   const promptPath = process.env.AI_RAILS_HOME + '/prompts/tester-prompt.md';
    const prompt = fs.readFileSync(promptPath, 'utf8');
    ```
 
@@ -110,7 +111,7 @@ Use the prompt loader utility:
 python -m utils.prompt_loader list
 
 # Show a specific prompt
-python -m utils.prompt_loader show test_generator
+python -m utils.prompt_loader show tester-prompt
 
 # Get prompts directory path
 python -m utils.prompt_loader path
@@ -143,7 +144,7 @@ python -m utils.prompt_loader path
 
 ### Customizing Test Generation
 
-To make tests more comprehensive, edit `test_generator.md`:
+To make tests more comprehensive, edit `tester-prompt.md`:
 
 ```markdown
 ### Additional Test Categories
@@ -154,7 +155,7 @@ To make tests more comprehensive, edit `test_generator.md`:
 
 ### Language-Specific Prompts
 
-Create `test_generator_javascript.md` for JavaScript projects:
+Create `tester-prompt-javascript.md` for JavaScript projects:
 
 ```markdown
 # JavaScript Test Generator Prompt
@@ -164,7 +165,7 @@ Generate tests using Jest framework...
 
 ### Domain-Specific Prompts
 
-Create `test_generator_web_api.md` for API projects:
+Create `tester-prompt-web-api.md` for API projects:
 
 ```markdown
 # Web API Test Generator Prompt

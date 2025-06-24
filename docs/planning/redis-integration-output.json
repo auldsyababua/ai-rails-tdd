@@ -1,0 +1,208 @@
+{
+  "planning_phase": "tdd_implementation",
+  "feature_spec": {
+    "name": "Redis State Management Integration",
+    "complexity": "medium",
+    "description": "Integrate Redis for persistent workflow state storage with Upstash TLS support, automatic TTL-based cleanup, and graceful fallback to in-memory storage when Redis is unavailable",
+    "atomic_components": [
+      "TLS-enabled Redis connection with Upstash",
+      "Connection pool management with monitoring",
+      "Workflow state save/retrieve operations",
+      "Approval request lifecycle management",
+      "Test results storage and retrieval",
+      "TTL-based automatic cleanup",
+      "Graceful degradation to memory storage",
+      "Health check and statistics endpoints"
+    ]
+  },
+  "research_results": {
+    "compatibility_matrix": {
+      "redis-py": "5.0.1",
+      "python": ">=3.9",
+      "upstash_redis": "latest",
+      "fastapi": ">=0.95.0"
+    },
+    "version_recommendations": {
+      "redis-py": "5.0.1",
+      "connection_pool_size": "workers * 2",
+      "socket_timeout": 5,
+      "socket_connect_timeout": 5,
+      "health_check_interval": 30
+    },
+    "known_issues": [
+      "Connection pool exhaustion in async contexts - use redis.asyncio",
+      "Upstash requires TLS via rediss:// protocol",
+      "Memory leaks with KEYS command - use SCAN instead",
+      "Race conditions require Redis locks or transactions"
+    ],
+    "best_practices": [
+      "Always use connection pooling",
+      "Set socket_keepalive=True for production",
+      "Implement circuit breaker pattern",
+      "Use SCAN instead of KEYS for iteration",
+      "Enable both RDB and AOF persistence for critical data"
+    ]
+  },
+  "test_specification": {
+    "behavioral_tests": [
+      {
+        "name": "test_save_and_retrieve_workflow_state",
+        "description": "Verify workflow state can be saved with TTL and retrieved accurately"
+      },
+      {
+        "name": "test_update_existing_workflow_state",
+        "description": "Verify updates preserve data integrity and update timestamps"
+      },
+      {
+        "name": "test_approval_request_lifecycle",
+        "description": "Test creation, retrieval, and status updates of approval requests"
+      },
+      {
+        "name": "test_ttl_expiration",
+        "description": "Verify keys expire according to configured TTL"
+      },
+      {
+        "name": "test_concurrent_workflow_updates",
+        "description": "Ensure data consistency with simultaneous updates"
+      }
+    ],
+    "edge_cases": [
+      {
+        "name": "test_redis_connection_failure",
+        "description": "Verify graceful fallback to memory when Redis unavailable"
+      },
+      {
+        "name": "test_connection_pool_exhaustion",
+        "description": "Handle scenario when all connections are in use"
+      },
+      {
+        "name": "test_malformed_data_handling",
+        "description": "Verify robust error handling for corrupted data"
+      },
+      {
+        "name": "test_network_timeout_recovery",
+        "description": "Test recovery from network timeouts and transient failures"
+      },
+      {
+        "name": "test_large_payload_storage",
+        "description": "Verify handling of payloads near Redis limits"
+      }
+    ],
+    "performance_criteria": {
+      "max_operation_latency_ms": 50,
+      "min_throughput_ops_per_sec": 1000,
+      "connection_pool_efficiency": 0.8,
+      "memory_usage_per_key_bytes": 10240,
+      "max_recovery_time_seconds": 5
+    },
+    "security_requirements": [
+      "All connections must use TLS/SSL",
+      "Connection strings must not contain plaintext passwords",
+      "All input keys must be validated against injection",
+      "Sensitive data must be encrypted before storage",
+      "API keys must never be logged"
+    ]
+  },
+  "data_contracts": {
+    "pydantic_models": {
+      "WorkflowState": {
+        "workflow_id": "str (regex: ^[A-Z]{3}-[0-9]{6}$)",
+        "status": "enum: pending|in_progress|completed|failed",
+        "feature_description": "str",
+        "current_stage": "str",
+        "metadata": "Dict[str, Any]",
+        "created_at": "datetime",
+        "last_updated": "datetime",
+        "ttl_hours": "int (1-168)"
+      },
+      "ApprovalRequest": {
+        "approval_id": "str (UUID format)",
+        "workflow_id": "str",
+        "request_type": "enum: test|code|deploy",
+        "content": "str",
+        "requester": "str",
+        "created_at": "datetime",
+        "expires_at": "datetime",
+        "status": "enum: pending|approved|rejected|expired"
+      },
+      "TestResults": {
+        "test_id": "str",
+        "workflow_id": "str",
+        "test_suite": "str",
+        "passed": "int",
+        "failed": "int",
+        "skipped": "int",
+        "duration_seconds": "float",
+        "failure_details": "Optional[List[Dict]]",
+        "coverage_percent": "Optional[float] (0-100)",
+        "executed_at": "datetime"
+      }
+    },
+    "json_schemas": {
+      "redis_key_patterns": {
+        "workflow": "ai_rails_workflow_{workflow_id}",
+        "approval": "ai_rails_approval_{approval_id}",
+        "test": "ai_rails_test_{test_id}",
+        "lock": "ai_rails_lock_{resource_id}",
+        "metric": "ai_rails_metric_{metric_name}_{timestamp}"
+      }
+    },
+    "validation_rules": [
+      "workflow_id must match pattern ^[A-Z]{3}-[0-9]{6}$",
+      "approval_id must be valid UUID4",
+      "TTL must be between 1 and 168 hours",
+      "last_updated must be >= created_at",
+      "coverage_percent must be between 0 and 100"
+    ]
+  },
+  "risk_mitigation": {
+    "identified_risks": [
+      {
+        "risk": "Redis connection failure",
+        "impact": "high",
+        "likelihood": "medium",
+        "detection": "Connection health checks"
+      },
+      {
+        "risk": "Data loss on Redis restart",
+        "impact": "high",
+        "likelihood": "low",
+        "detection": "Data integrity checks"
+      },
+      {
+        "risk": "Connection pool exhaustion",
+        "impact": "medium",
+        "likelihood": "medium",
+        "detection": "Pool usage monitoring"
+      },
+      {
+        "risk": "API rate limit exceeded",
+        "impact": "medium",
+        "likelihood": "low",
+        "detection": "Command counting"
+      }
+    ],
+    "mitigation_strategies": {
+      "redis_connection_failure": "Implement exponential backoff retry with in-memory fallback",
+      "data_loss": "Enable RDB+AOF persistence, backup critical data to S3",
+      "pool_exhaustion": "Dynamic pool sizing, request queueing with timeout",
+      "rate_limiting": "Implement caching layer, batch operations"
+    },
+    "monitoring_plan": {
+      "metrics": [
+        "redis_connection_pool_size",
+        "redis_connection_pool_used",
+        "redis_operation_duration",
+        "redis_operation_errors",
+        "redis_key_count",
+        "redis_memory_usage"
+      ],
+      "alerts": [
+        "Connection failure rate > 1%",
+        "Pool utilization > 80%",
+        "Operation latency p99 > 100ms",
+        "Memory usage > 80% of limit"
+      ]
+    }
+  }
+}

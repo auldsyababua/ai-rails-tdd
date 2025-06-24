@@ -1,0 +1,34 @@
+{
+  "feature_name": "redis-integration",
+  "requirements": [
+    "Connect to Redis instance (local or remote)",
+    "Store and retrieve planning documents",
+    "Cache generated tests and implementations",
+    "Track approval history and feedback",
+    "Support TTL for automatic cleanup",
+    "Handle connection failures gracefully"
+  ],
+  "test_guidelines": {
+    "categories": [
+      "happy_path",
+      "edge_cases",
+      "error_handling",
+      "property_based",
+      "integration",
+      "performance"
+    ],
+    "anti_gaming_measures": true,
+    "minimum_tests_per_category": 3,
+    "focus_areas": [
+      "Connection resilience",
+      "Data integrity",
+      "Concurrent operations",
+      "Memory efficiency"
+    ]
+  },
+  "context": {
+    "framework": "pytest",
+    "mocking_library": "unittest.mock",
+    "test_redis": "fakeredis or redis-py-cluster test mode"
+  }
+}

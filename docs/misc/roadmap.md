@@ -13,7 +13,7 @@ The current MVP focuses on proving the core TDD pattern works:
 
 ## Future Features
 
-### Simple UI / Dashboard (App-like Web Controller)
+### Simple UI / Dashboard (App-like Web Controller) [#2](https://github.com/auldsyababua/ai-rails-tdd/issues/2)
 
 **Goal:** A beautiful, simple, app-like experience to manage the AI Rails TDD workflow, eliminating manual copy-pasting.
 
@@ -30,7 +30,7 @@ The current MVP focuses on proving the core TDD pattern works:
 - **Log Viewer:** Real-time display of `.ai-rails/logs/` with filtering
 - **Prompt Template Manager:** UI to view, edit, and manage agent prompts in `prompts/`
 
-### CLI Workflow Automation
+### CLI Workflow Automation [#3](https://github.com/auldsyababua/ai-rails-tdd/issues/3)
 
 **Goal:** Execute n8n workflows directly from the command line without manual browser interaction.
 
@@ -41,7 +41,7 @@ The current MVP focuses on proving the core TDD pattern works:
 - Open approval URL automatically when needed
 - Return to terminal after completion
 
-### Redis Support for Workflow State Management
+### Redis Support for Workflow State Management [#4](https://github.com/auldsyababua/ai-rails-tdd/issues/4)
 
 **Goal:** Maintain workflow state and history across multiple TDD cycles without re-entering data.
 
@@ -51,7 +51,7 @@ The current MVP focuses on proving the core TDD pattern works:
 - Enable quick re-runs with modifications
 - Track approval history and feedback
 
-### Automated Test Execution Pipeline
+### Automated Test Execution Pipeline [#5](https://github.com/auldsyababua/ai-rails-tdd/issues/5)
 
 **Goal:** Seamless integration of actual test execution into the workflow.
 
@@ -62,7 +62,7 @@ The current MVP focuses on proving the core TDD pattern works:
 - Coverage report generation and display
 - Automatic re-generation on test failures
 
-### Enhanced n8n Integration
+### Enhanced n8n Integration [#6](https://github.com/auldsyababua/ai-rails-tdd/issues/6)
 
 **Goal:** Make n8n workflows more powerful and flexible.
 
@@ -72,7 +72,7 @@ The current MVP focuses on proving the core TDD pattern works:
 - **Parallel Processing:** Generate multiple test variations simultaneously
 - **Workflow Templates:** Pre-built workflows for different project types
 
-### Project-Specific Configuration
+### Project-Specific Configuration [#7](https://github.com/auldsyababua/ai-rails-tdd/issues/7)
 
 **Goal:** Allow per-project customization without modifying global settings.
 
@@ -82,7 +82,7 @@ The current MVP focuses on proving the core TDD pattern works:
 - Custom test patterns and conventions
 - Language-specific configurations
 
-### Centralized Prompt Management
+### Centralized Prompt Management [#8](https://github.com/auldsyababua/ai-rails-tdd/issues/8)
 
 **Goal:** Single source of truth for all AI prompts and instructions.
 
@@ -92,7 +92,7 @@ The current MVP focuses on proving the core TDD pattern works:
 - **Role-Based Prompts:** Different instructions for different project types
 - **Dynamic Injection:** Load only relevant prompts based on project context
 
-### Integration with External Services
+### Integration with External Services [#9](https://github.com/auldsyababua/ai-rails-tdd/issues/9)
 
 **Goal:** Connect AI Rails TDD with existing development tools.
 
@@ -102,7 +102,7 @@ The current MVP focuses on proving the core TDD pattern works:
 - **Code Review Tools:** Send generated code for automated review
 - **Issue Trackers:** Create issues from failed test scenarios
 
-### Local Model Management
+### Local Model Management [#10](https://github.com/auldsyababua/ai-rails-tdd/issues/10)
 
 **Goal:** Simplify the use of local models via Ollama.
 
@@ -112,7 +112,7 @@ The current MVP focuses on proving the core TDD pattern works:
 - Automatic model selection based on task
 - Resource usage monitoring
 
-### Security Enhancements
+### Security Enhancements [#11](https://github.com/auldsyababua/ai-rails-tdd/issues/11)
 
 **Goal:** Ensure safe operation in production environments.
 
@@ -122,7 +122,7 @@ The current MVP focuses on proving the core TDD pattern works:
 - **Audit Logging:** Track all approvals and generations
 - **Rate Limiting:** Prevent abuse of API endpoints
 
-### Monitoring and Analytics
+### Monitoring and Analytics [#12](https://github.com/auldsyababua/ai-rails-tdd/issues/12)
 
 **Goal:** Understand how AI Rails TDD is being used and improve it.
 
@@ -132,6 +132,28 @@ The current MVP focuses on proving the core TDD pattern works:
 - Time saved metrics
 - Model performance comparison
 - Usage dashboards
+
+### Specialized Hugging Face Models for Each Agent [#13](https://github.com/auldsyababua/ai-rails-tdd/issues/13)
+
+**Goal:** Implement a hybrid LLM strategy using specialized self-hosted models for each agent type, maximizing performance while minimizing costs.
+
+**Features:**
+- **Model Allocation Strategy:** Pair each agent with models optimized for their specific tasks
+  - Planning Agent: WizardLM-2-8x22B-GGUF (Q4_K_M) for complex reasoning
+  - Coder Agent: DeepSeek-Coder-33B-Instruct for code generation
+  - Unit Tester Agent: StarCoder2-15B-Instruct for test generation
+  - Debugger Agent: WizardCoder-33B-V1.1 for error analysis
+  - Documentation Agent: OpenHermes-2.5-Mistral-7B for natural writing
+  - Code Review Agent: CodeLlama-34B-Instruct for security analysis
+  - Refactor Agent: Refact-1.6B for code refactoring
+  - n8n Flow Creator Agent: Mistral-7B-OpenOrca for JSON generation
+  - Overseer Agent: TinyLlama-1.1B for anomaly detection
+- **Local-First Deployment:** Maximize RTX 5090 GPU usage, eliminate API costs
+- **Quantization Support:** Optimal quantization (Q4_K_M for 70B models, FP16 for 34B)
+- **Hybrid Approach:** Claude 4 Opus as strategic cloud fallback for complex planning
+- **Flexible Deployment:** Support for Ollama, llama.cpp, and vLLM
+- **VRAM Management:** Intelligent model loading based on available GPU memory
+- **Model Performance Monitoring:** Track inference times and quality metrics
 
 ---
 

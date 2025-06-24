@@ -47,10 +47,21 @@ sequential_thinking_config = {
 
 ### A. Multi-Provider Search Strategy (Power User Mode)
 
-**Parallel Search Execution:**
+**Parallel Search Execution with Jina Enhancement:**
 ```python
 # Execute searches across all providers simultaneously
 omnisearch_strategy = {
+    "jina_reader": {
+        "purpose": "Extract clean content from complex documentation sites",
+        "targets": [
+            "official_documentation_urls",
+            "api_reference_pages",
+            "framework_guides",
+            "changelog_pages"
+        ],
+        "extract_depth": "advanced",
+        "post_process": "jina_grounding_enhance"  # Verify extracted facts
+    },
     "brave": {
         "queries": [
             '"[Component A]" "[Component B]" compatibility -site:w3schools.com',
@@ -107,7 +118,7 @@ context7_strategy = {
 
 ### C. StackOverflow Edge Case Mining
 
-**Advanced Error Pattern Research:**
+**Advanced Error Pattern Research with Fact Verification:**
 ```python
 stackoverflow_strategy = {
     "error_research": {
@@ -115,7 +126,19 @@ stackoverflow_strategy = {
         "min_score": 10,  # High-quality answers only
         "include_comments": True,  # Often contain crucial details
         "tags": ["technology-version", "specific-feature"],
-        "combine_strategy": "AND"  # All tags must match
+        "combine_strategy": "AND",  # All tags must match
+        "fact_verification": {
+            "tool": "jina_grounding_enhance",
+            "verify": [
+                "solution_accuracy",
+                "version_compatibility",
+                "code_snippet_validity"
+            ]
+        }
+    },
+    "content_extraction": {
+        "tool": "jina_reader_process",
+        "purpose": "Extract clean code snippets and solutions from SO pages"
     }
 }
 ```
@@ -145,9 +168,27 @@ verification_pipeline = {
     "stage1_generation": "Initial research findings",
     "stage2_grounding": {
         "tool": "jina_grounding_enhance",
-        "purpose": "Fact-check all version numbers and compatibility claims"
+        "purpose": "Fact-check all version numbers and compatibility claims",
+        "verification_targets": [
+            "version_numbers",
+            "dependency_compatibility",
+            "performance_benchmarks",
+            "security_vulnerability_claims",
+            "api_endpoint_specifications"
+        ],
+        "confidence_threshold": 0.8
     },
-    "stage3_enrichment": {
+    "stage3_reader": {
+        "tool": "jina_reader_process",
+        "purpose": "Extract clean content from dynamic documentation sites",
+        "use_cases": [
+            "JavaScript-heavy documentation",
+            "API reference pages",
+            "Release notes and changelogs",
+            "Tutorial and guide pages"
+        ]
+    },
+    "stage4_enrichment": {
         "tool": "kagi_enrichment_enhance",
         "purpose": "Add specialized knowledge from Teclis/TinyGem indexes"
     }

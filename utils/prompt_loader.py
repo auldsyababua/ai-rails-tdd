@@ -57,16 +57,16 @@ class PromptLoader:
 
     def get_test_generator_prompt(self) -> str:
         """Get the test generator prompt"""
-        return self.load_prompt("test_generator")
+        return self.load_prompt("tester-prompt")
 
     def get_code_generator_prompt(self) -> str:
         """Get the code generator prompt"""
-        return self.load_prompt("code_generator")
+        return self.load_prompt("coder-prompt")
 
     def get_reviewer_prompt(self) -> str:
         """Get the code reviewer prompt"""
         try:
-            return self.load_prompt("code_reviewer")
+            return self.load_prompt("reviewer-prompt")
         except FileNotFoundError:
             return "You are an expert code reviewer. Review the code for quality, security, and correctness."
 
