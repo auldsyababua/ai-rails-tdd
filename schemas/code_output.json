@@ -1,0 +1,84 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Code Output",
+  "description": "Schema for validating generated code output",
+  "type": "object",
+  "properties": {
+    "feature_id": {
+      "type": "string",
+      "description": "Reference to the feature being implemented"
+    },
+    "language": {
+      "type": "string",
+      "enum": ["python", "javascript", "typescript", "java", "go", "rust"]
+    },
+    "files": {
+      "type": "array",
+      "description": "Array of generated files",
+      "items": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "File path relative to project root"
+          },
+          "content": {
+            "type": "string",
+            "description": "File content"
+          },
+          "file_type": {
+            "type": "string",
+            "enum": ["source", "test", "config", "documentation"]
+          },
+          "dependencies": {
+            "type": "array",
+            "description": "External dependencies required",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": ["path", "content", "file_type"]
+      },
+      "minItems": 1
+    },
+    "quality_metrics": {
+      "type": "object",
+      "properties": {
+        "has_docstrings": {
+          "type": "boolean"
+        },
+        "has_type_hints": {
+          "type": "boolean"
+        },
+        "follows_conventions": {
+          "type": "boolean"
+        },
+        "complexity_score": {
+          "type": "number",
+          "maximum": 10
+        }
+      },
+      "required": ["has_docstrings", "has_type_hints"]
+    },
+    "test_compatibility": {
+      "type": "object",
+      "properties": {
+        "matches_test_suite": {
+          "type": "boolean"
+        },
+        "implements_all_tests": {
+          "type": "boolean"
+        },
+        "additional_methods": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "required": ["feature_id", "language", "files", "quality_metrics", "test_compatibility"],
+  "additionalProperties": false
+}

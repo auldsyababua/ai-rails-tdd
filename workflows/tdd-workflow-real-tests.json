@@ -1,0 +1,476 @@
+{
+  "name": "AI Rails TDD - Real Test Execution",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "manual-trigger",
+      "name": "Start with Planning Doc",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ollama_base_url",
+              "name": "ollama_base_url",
+              "value": "{{ $env.OLLAMA_BASE_URL || 'http://localhost:11434' }}",
+              "type": "string"
+            },
+            {
+              "id": "ollama_model",
+              "name": "ollama_model",
+              "value": "qwen2.5-coder:32b",
+              "type": "string"
+            },
+            {
+              "id": "approval_server_url",
+              "name": "approval_server_url",
+              "value": "http://localhost:8000",
+              "type": "string"
+            },
+            {
+              "id": "test_runner_url",
+              "name": "test_runner_url",
+              "value": "http://localhost:8001",
+              "type": "string"
+            },
+            {
+              "id": "test_temperature",
+              "name": "test_temperature",
+              "value": 0.7,
+              "type": "number"
+            },
+            {
+              "id": "code_temperature",
+              "name": "code_temperature",
+              "value": 0.3,
+              "type": "number"
+            }
+          ]
+        }
+      },
+      "id": "config-node",
+      "name": "Configuration",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [460, 180]
+    },
+    {
+      "parameters": {
+        "content": "## ⚙️ Configuration\n\nEdit Configuration node to set:\n• Ollama URL & Model\n• Service endpoints\n• Temperature settings\n\n⚠️ Make sure test runner is running:\npython webhooks/test_runner.py",
+        "height": 180,
+        "width": 280
+      },
+      "id": "config-note",
+      "name": "Config Instructions",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [460, 20]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "planning_doc",
+              "name": "planning_doc",
+              "value": "Paste your entire planning document here",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "id": "input-planning-doc",
+      "name": "Input Planning Document",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get configuration\nconst config = $('Configuration').item.json;\n\n// Extract key information from planning document\nconst planningDoc = $json.planning_doc || '';\n\nconst extractSection = (doc, sectionName) => {\n  try {\n    const escapedName = sectionName.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&');\n    const regex = new RegExp(`## ${escapedName}[\\\\s\\\\S]*?(?=\\\\n## |$)`, 'i');\n    const match = doc.match(regex);\n    return match ? match[0] : '';\n  } catch (e) {\n    return '';\n  }\n};\n\nconst extractValue = (section, fieldName) => {\n  try {\n    const escapedField = fieldName.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&');\n    const regex = new RegExp(`\\\\*\\\\*${escapedField}\\\\*\\\\*:?\\\\s*(.+)`, 'i');\n    const match = section.match(regex);\n    return match ? match[1].trim() : '';\n  } catch (e) {\n    return '';\n  }\n};\n\n// Extract main sections\nconst featureSection = extractSection(planningDoc, 'Feature Overview');\nconst requirementsSection = extractSection(planningDoc, 'Requirements');\nconst testSection = extractSection(planningDoc, 'Test Categories Required');\nconst acceptanceSection = extractSection(planningDoc, 'Acceptance Criteria');\n\n// Extract specific values\nconst featureName = extractValue(featureSection, 'Feature Name') || 'Unnamed Feature';\nconst featureDescription = extractValue(featureSection, 'Feature Description') || planningDoc.substring(0, 200);\nconst complexity = extractValue(featureSection, 'Complexity') || 'medium';\n\n// Extract test categories\nconst testCategories = [];\ntry {\n  const testMatches = testSection.match(/- \\\\[x\\\\] ([^\\\\n]+)/gi) || [];\n  testMatches.forEach(match => {\n    const category = match.replace(/- \\\\[x\\\\] /i, '').split(' ')[0].toLowerCase();\n    testCategories.push(category.replace(/_/g, ' '));\n  });\n} catch (e) {}\n\nif (testCategories.length === 0) {\n  testCategories.push('happy path', 'edge cases', 'error handling');\n}\n\nreturn {\n  feature_name: featureName,\n  feature_description: featureDescription,\n  complexity: complexity,\n  test_categories: testCategories,\n  full_planning_doc: planningDoc,\n  requirements_section: requirementsSection,\n  acceptance_criteria: acceptanceSection,\n  config: config\n};"
+      },
+      "id": "parse-planning-doc",
+      "name": "Parse Planning Document",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.config.ollama_base_url }}/api/generate",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"model\": \"{{ $json.config.ollama_model }}\",\n  \"prompt\": \"You are an expert test engineer specializing in Test-Driven Development (TDD). Generate comprehensive Python tests using pytest.\\n\\nProject Details:\\nFeature: {{ $json.feature_name }}\\nDescription: {{ $json.feature_description }}\\nComplexity: {{ $json.complexity }}\\n\\nRequirements:\\n{{ $json.requirements_section }}\\n\\nAcceptance Criteria:\\n{{ $json.acceptance_criteria }}\\n\\nRequired Test Categories: {{ $json.test_categories.join(', ') }}\\n\\nGenerate comprehensive tests following these principles:\\n1. Use pytest framework with proper imports\\n2. Test function names: test_{what}_when_{condition}_then_{expectation}\\n3. Include docstrings explaining each test\\n4. Use proper assertions (assert, pytest.raises, etc.)\\n5. Include edge cases and error scenarios\\n6. Add property-based tests where applicable (using hypothesis)\\n\\nOutput a complete, runnable test file with all imports. Do NOT include the implementation - only tests.\",\n  \"stream\": false,\n  \"options\": {\n    \"temperature\": {{ $json.config.test_temperature }},\n    \"num_predict\": 6000\n  }\n}",
+        "options": {
+          "timeout": 90000
+        }
+      },
+      "id": "generate-tests",
+      "name": "Generate Comprehensive Tests",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Parse Planning Document').item.json.config.approval_server_url }}/webhook/approval-request",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"workflow_id\": \"{{ $workflow.id }}\",\n  \"feature_description\": \"{{ $('Parse Planning Document').item.json.feature_name }}: {{ $('Parse Planning Document').item.json.feature_description }}\",\n  \"generated_tests\": \"{{ $json.response }}\",\n  \"test_categories\": {{ JSON.stringify($('Parse Planning Document').item.json.test_categories) }},\n  \"timestamp\": \"{{ new Date().toISOString() }}\"\n}",
+        "options": {}
+      },
+      "id": "create-approval-request",
+      "name": "Create Approval Request",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1120, 300]
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "maxTimeout": 1800
+      },
+      "id": "poll-for-approval",
+      "name": "Poll for Approval",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [1340, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{ $('Parse Planning Document').item.json.config.approval_server_url + '/webhook/check-approval/' + $('Create Approval Request').item.json.approval_id }}",
+        "options": {}
+      },
+      "id": "check-approval-status",
+      "name": "Check Approval Status",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1560, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "conditions": [
+            {
+              "leftValue": "={{ $json.response.approved }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ]
+        }
+      },
+      "id": "if-approved",
+      "name": "If Approved",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1780, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Parse Planning Document').item.json.config.ollama_base_url }}/api/generate",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"model\": \"{{ $('Parse Planning Document').item.json.config.ollama_model }}\",\n  \"prompt\": \"You are an expert Python developer implementing code using Test-Driven Development.\\n\\nProject: {{ $('Parse Planning Document').item.json.feature_name }}\\n\\nFull Requirements:\\n{{ $('Parse Planning Document').item.json.full_planning_doc }}\\n\\nTests to Pass:\\n{{ $('Generate Comprehensive Tests').item.json.response }}\\n\\nImplementation Requirements:\\n1. Write code that makes ALL tests pass\\n2. Use Python type hints\\n3. Include comprehensive docstrings\\n4. Handle all edge cases properly\\n5. Follow PEP 8 conventions\\n6. No test-specific hacks - write real, production-ready code\\n7. Include all necessary imports\\n\\nOutput ONLY the implementation code (no tests). The code should be complete and runnable.\",\n  \"stream\": false,\n  \"options\": {\n    \"temperature\": {{ $('Parse Planning Document').item.json.config.code_temperature }},\n    \"num_predict\": 8000\n  }\n}",
+        "options": {
+          "timeout": 120000
+        }
+      },
+      "id": "generate-implementation",
+      "name": "Generate Implementation",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2000, 240]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Parse Planning Document').item.json.config.test_runner_url }}/run-tests",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"test_code\": \"{{ $('Generate Comprehensive Tests').item.json.response }}\",\n  \"implementation_code\": \"{{ $json.response }}\",\n  \"language\": \"python\",\n  \"test_framework\": \"pytest\",\n  \"timeout\": 30\n}",
+        "options": {
+          "timeout": 45000
+        }
+      },
+      "id": "run-actual-tests",
+      "name": "Run Actual Tests",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2220, 240]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "conditions": [
+            {
+              "leftValue": "={{ $json.success }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ]
+        }
+      },
+      "id": "check-tests-passed",
+      "name": "Check If Tests Passed",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [2440, 240]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Compile successful output\nconst planningDoc = $('Parse Planning Document').item.json;\nconst tests = $('Generate Comprehensive Tests').item.json.response;\nconst implementation = $('Generate Implementation').item.json.response;\nconst testResults = $json;\n\nreturn {\n  status: \"success\",\n  message: \"✅ All tests passed! Implementation is complete.\",\n  project: {\n    name: planningDoc.feature_name,\n    description: planningDoc.feature_description\n  },\n  test_results: {\n    total_tests: testResults.total_tests,\n    passed_tests: testResults.passed_tests,\n    failed_tests: testResults.failed_tests,\n    coverage: testResults.coverage ? `${testResults.coverage}%` : 'N/A',\n    execution_time: `${testResults.execution_time.toFixed(2)}s`\n  },\n  artifacts: {\n    test_file: `test_${planningDoc.feature_name.toLowerCase().replace(/ /g, '_')}.py`,\n    implementation_file: `${planningDoc.feature_name.toLowerCase().replace(/ /g, '_')}.py`,\n    test_code: tests,\n    implementation_code: implementation\n  },\n  next_steps: [\n    \"Save the test file and implementation file\",\n    \"Add to your project\",\n    \"Run tests locally to verify\",\n    \"Commit to version control\"\n  ],\n  timestamp: new Date().toISOString()\n};"
+      },
+      "id": "format-success",
+      "name": "Format Success Output",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2660, 180]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Handle failed tests - need to iterate\nconst planningDoc = $('Parse Planning Document').item.json;\nconst tests = $('Generate Comprehensive Tests').item.json.response;\nconst implementation = $('Generate Implementation').item.json.response;\nconst testResults = $json;\n\n// Extract failed test details\nconst failedTests = testResults.test_results.filter(t => !t.passed);\nconst failureDetails = failedTests.map(t => `- ${t.test_name}: ${t.error_message || 'Failed'}`).join('\\n');\n\nreturn {\n  status: \"tests_failed\",\n  message: \"❌ Some tests failed. The implementation needs fixes.\",\n  project: {\n    name: planningDoc.feature_name,\n    description: planningDoc.feature_description\n  },\n  test_results: {\n    total_tests: testResults.total_tests,\n    passed_tests: testResults.passed_tests,\n    failed_tests: testResults.failed_tests,\n    coverage: testResults.coverage ? `${testResults.coverage}%` : 'N/A',\n    execution_time: `${testResults.execution_time.toFixed(2)}s`\n  },\n  failed_test_details: failureDetails,\n  test_output: testResults.stdout,\n  error_output: testResults.stderr,\n  next_action: \"The AI needs to analyze the failures and fix the implementation.\",\n  artifacts: {\n    test_code: tests,\n    implementation_code: implementation\n  },\n  timestamp: new Date().toISOString()\n};"
+      },
+      "id": "format-failure",
+      "name": "Format Failure Output",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2660, 300]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "status",
+              "value": "rejected"
+            },
+            {
+              "name": "reason",
+              "value": "Tests were rejected during human review"
+            },
+            {
+              "name": "feedback",
+              "value": "={{ $json.response.feedback }}"
+            }
+          ]
+        }
+      },
+      "id": "handle-rejection",
+      "name": "Handle Rejection",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [2000, 360]
+    }
+  ],
+  "connections": {
+    "Start with Planning Doc": {
+      "main": [
+        [
+          {
+            "node": "Configuration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Configuration": {
+      "main": [
+        [
+          {
+            "node": "Input Planning Document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Input Planning Document": {
+      "main": [
+        [
+          {
+            "node": "Parse Planning Document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Planning Document": {
+      "main": [
+        [
+          {
+            "node": "Generate Comprehensive Tests",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Comprehensive Tests": {
+      "main": [
+        [
+          {
+            "node": "Create Approval Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Approval Request": {
+      "main": [
+        [
+          {
+            "node": "Poll for Approval",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Poll for Approval": {
+      "main": [
+        [
+          {
+            "node": "Check Approval Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Approval Status": {
+      "main": [
+        [
+          {
+            "node": "If Approved",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Approved": {
+      "main": [
+        [
+          {
+            "node": "Generate Implementation",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Handle Rejection",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Implementation": {
+      "main": [
+        [
+          {
+            "node": "Run Actual Tests",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run Actual Tests": {
+      "main": [
+        [
+          {
+            "node": "Check If Tests Passed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check If Tests Passed": {
+      "main": [
+        [
+          {
+            "node": "Format Success Output",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Format Failure Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "templateId": "ai-rails-tdd-real-tests"
+  },
+  "pinData": {}
+}

@@ -1,0 +1,512 @@
+{
+  "name": "AI Rails TDD - OpenRouter Multi-Model",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "manual-trigger",
+      "name": "Start TDD Process",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "content": "## 🚀 AI Rails TDD with OpenRouter\n\n1. Configure your OpenRouter API key\n2. Choose your preferred models\n3. Paste planning document\n4. Execute workflow\n\nThis workflow uses OpenRouter to access:\n• OpenAI (GPT-4, GPT-3.5)\n• Anthropic (Claude models)\n• Perplexity (pplx models)\n• And many more!",
+        "height": 200,
+        "width": 320
+      },
+      "id": "instructions",
+      "name": "Instructions",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [180, 80]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "planning_doc",
+              "name": "planning_doc",
+              "value": "Paste your planning document content here",
+              "type": "string"
+            },
+            {
+              "id": "project_path",
+              "name": "project_path",
+              "value": "REPLACE_WITH_YOUR_PROJECT_PATH",
+              "type": "string"
+            },
+            {
+              "id": "openrouter_api_key",
+              "name": "openrouter_api_key",
+              "value": "sk-or-v1-YOUR-OPENROUTER-API-KEY",
+              "type": "string"
+            },
+            {
+              "id": "test_generation_model",
+              "name": "test_generation_model",
+              "value": "openai/gpt-4-turbo-preview",
+              "type": "string"
+            },
+            {
+              "id": "code_generation_model",
+              "name": "code_generation_model",
+              "value": "anthropic/claude-3.5-sonnet",
+              "type": "string"
+            },
+            {
+              "id": "code_review_model",
+              "name": "code_review_model",
+              "value": "perplexity/pplx-70b-online",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "id": "config",
+      "name": "Configuration",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse planning document\nconst planningDoc = $json.planning_doc;\nconst projectPath = $json.project_path;\n\n// Extract feature info\nconst extractValue = (doc, fieldName) => {\n  try {\n    const escapedField = fieldName.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&');\n    const regex = new RegExp(`\\\\*\\\\*${escapedField}\\\\*\\\\*:?\\\\s*(.+)`, 'i');\n    const match = doc.match(regex);\n    return match ? match[1].trim() : '';\n  } catch (e) {\n    return '';\n  }\n};\n\nconst featureName = extractValue(planningDoc, 'Feature Name') || 'unnamed-feature';\nconst featureDescription = extractValue(planningDoc, 'Feature Description') || '';\n\nreturn {\n  feature_name: featureName,\n  feature_description: featureDescription,\n  planning_doc: planningDoc,\n  project_path: projectPath,\n  openrouter_api_key: $json.openrouter_api_key,\n  test_generation_model: $json.test_generation_model,\n  code_generation_model: $json.code_generation_model,\n  code_review_model: $json.code_review_model\n};"
+      },
+      "id": "parse-planning",
+      "name": "Parse Planning Doc",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openrouter.ai/api/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $json.openrouter_api_key }}"
+            },
+            {
+              "name": "HTTP-Referer",
+              "value": "https://ai-rails-tdd.com"
+            },
+            {
+              "name": "X-Title",
+              "value": "AI Rails TDD"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"model\": \"{{ $json.test_generation_model }}\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are an expert test engineer specializing in Test-Driven Development (TDD). Generate comprehensive Python tests using pytest. Follow TDD principles:\\n1. Test behavior, not implementation\\n2. Include edge cases and error handling\\n3. Use descriptive test names: test_{what}_when_{condition}_then_{result}\\n4. Add docstrings to explain each test\\n5. Include all necessary imports\\n\\nOutput ONLY the test code, no explanations.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Planning Document:\\n{{ $json.planning_doc }}\\n\\nGenerate comprehensive tests for this feature.\"\n    }\n  ],\n  \"temperature\": 0.7,\n  \"max_tokens\": 4000\n}",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "id": "generate-tests",
+      "name": "Generate Tests (OpenRouter)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract the test code from OpenRouter response\nconst response = $json;\nconst testCode = response.choices[0].message.content;\n\n// Pass along all the data\nreturn {\n  test_code: testCode,\n  project_path: $('Parse Planning Doc').item.json.project_path,\n  feature_name: $('Parse Planning Doc').item.json.feature_name,\n  feature_description: $('Parse Planning Doc').item.json.feature_description,\n  planning_doc: $('Parse Planning Doc').item.json.planning_doc,\n  openrouter_api_key: $('Parse Planning Doc').item.json.openrouter_api_key,\n  test_generation_model: $('Parse Planning Doc').item.json.test_generation_model,\n  code_generation_model: $('Parse Planning Doc').item.json.code_generation_model,\n  code_review_model: $('Parse Planning Doc').item.json.code_review_model\n};"
+      },
+      "id": "extract-tests",
+      "name": "Extract Test Code",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1120, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:8000/webhook/approval-request",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"workflow_id\": \"{{ $workflow.id }}\",\n  \"feature_description\": \"{{ $json.feature_name }}: {{ $json.feature_description }}\",\n  \"generated_tests\": \"{{ $json.test_code }}\",\n  \"test_categories\": [\"comprehensive\"],\n  \"timestamp\": \"{{ new Date().toISOString() }}\"\n}",
+        "options": {}
+      },
+      "id": "request-approval",
+      "name": "Request Test Approval",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1340, 300]
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "maxTimeout": 1800
+      },
+      "id": "wait-approval",
+      "name": "Wait for Approval",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [1560, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{ 'http://localhost:8000/webhook/check-approval/' + $('Request Test Approval').item.json.approval_id }}",
+        "options": {}
+      },
+      "id": "check-approval",
+      "name": "Check Approval Status",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1780, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "conditions": [
+            {
+              "leftValue": "={{ $json.response.approved }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ]
+        }
+      },
+      "id": "if-approved",
+      "name": "If Approved",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [2000, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openrouter.ai/api/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('Extract Test Code').item.json.openrouter_api_key }}"
+            },
+            {
+              "name": "HTTP-Referer",
+              "value": "https://ai-rails-tdd.com"
+            },
+            {
+              "name": "X-Title",
+              "value": "AI Rails TDD"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"model\": \"{{ $('Extract Test Code').item.json.code_generation_model }}\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are an expert Python developer implementing code using Test-Driven Development. Write clean, efficient code that passes all provided tests. Requirements:\\n1. Make ALL tests pass\\n2. Use type hints\\n3. Include docstrings\\n4. Handle all edge cases\\n5. Follow PEP 8\\n6. No test-specific hacks\\n\\nOutput ONLY the implementation code.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Tests to pass:\\n{{ $('Check Approval Status').item.json.response.tests || $('Extract Test Code').item.json.test_code }}\\n\\nPlanning Document:\\n{{ $('Extract Test Code').item.json.planning_doc }}\\n\\nWrite the implementation.\"\n    }\n  ],\n  \"temperature\": 0.3,\n  \"max_tokens\": 4000\n}",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "id": "generate-code",
+      "name": "Generate Code (OpenRouter)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2220, 240]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract implementation code\nconst response = $json;\nconst implementationCode = response.choices[0].message.content;\n\nreturn {\n  implementation_code: implementationCode,\n  test_code: $('Extract Test Code').item.json.test_code,\n  project_path: $('Extract Test Code').item.json.project_path,\n  feature_name: $('Extract Test Code').item.json.feature_name,\n  openrouter_api_key: $('Extract Test Code').item.json.openrouter_api_key,\n  code_review_model: $('Extract Test Code').item.json.code_review_model\n};"
+      },
+      "id": "extract-code",
+      "name": "Extract Implementation",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2440, 240]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openrouter.ai/api/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $json.openrouter_api_key }}"
+            },
+            {
+              "name": "HTTP-Referer",
+              "value": "https://ai-rails-tdd.com"
+            },
+            {
+              "name": "X-Title",
+              "value": "AI Rails TDD"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"model\": \"{{ $json.code_review_model }}\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are an expert code reviewer. Analyze the implementation code for quality, security, and adherence to best practices. Provide a brief assessment.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Review this implementation:\\n\\nTests:\\n{{ $json.test_code }}\\n\\nImplementation:\\n{{ $json.implementation_code }}\\n\\nProvide a brief code review focusing on quality and potential issues.\"\n    }\n  ],\n  \"temperature\": 0.3,\n  \"max_tokens\": 1000\n}",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "code-review",
+      "name": "Code Review (OpenRouter)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2660, 240]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:8001/run-tests",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"test_code\": \"{{ $('Extract Implementation').item.json.test_code }}\",\n  \"implementation_code\": \"{{ $('Extract Implementation').item.json.implementation_code }}\",\n  \"language\": \"python\",\n  \"test_framework\": \"pytest\",\n  \"timeout\": 30\n}",
+        "options": {
+          "timeout": 45000
+        }
+      },
+      "id": "run-tests",
+      "name": "Run Tests",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2880, 240]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "conditions": [
+            {
+              "leftValue": "={{ $json.success }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ]
+        }
+      },
+      "id": "check-success",
+      "name": "Check Test Success",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [3100, 240]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "status",
+              "value": "success"
+            },
+            {
+              "name": "message",
+              "value": "✅ All tests passed! Implementation ready."
+            },
+            {
+              "name": "test_file",
+              "value": "={{ 'test_' + $('Extract Implementation').item.json.feature_name.toLowerCase().replace(/ /g, '_') + '.py' }}"
+            },
+            {
+              "name": "impl_file",
+              "value": "={{ $('Extract Implementation').item.json.feature_name.toLowerCase().replace(/ /g, '_') + '.py' }}"
+            },
+            {
+              "name": "tests",
+              "value": "={{ $('Extract Implementation').item.json.test_code }}"
+            },
+            {
+              "name": "implementation",
+              "value": "={{ $('Extract Implementation').item.json.implementation_code }}"
+            },
+            {
+              "name": "code_review",
+              "value": "={{ $('Code Review (OpenRouter)').item.json.choices[0].message.content }}"
+            }
+          ],
+          "number": [
+            {
+              "name": "total_tests",
+              "value": "={{ $('Run Tests').item.json.total_tests }}"
+            },
+            {
+              "name": "passed_tests",
+              "value": "={{ $('Run Tests').item.json.passed_tests }}"
+            },
+            {
+              "name": "coverage",
+              "value": "={{ $('Run Tests').item.json.coverage || 0 }}"
+            }
+          ]
+        }
+      },
+      "id": "success-output",
+      "name": "Success Output",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [3320, 180]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "status",
+              "value": "failed"
+            },
+            {
+              "name": "message",
+              "value": "❌ Some tests failed. Check the output."
+            },
+            {
+              "name": "test_output",
+              "value": "={{ $('Run Tests').item.json.stdout }}"
+            },
+            {
+              "name": "error_output",
+              "value": "={{ $('Run Tests').item.json.stderr }}"
+            }
+          ],
+          "number": [
+            {
+              "name": "failed_tests",
+              "value": "={{ $('Run Tests').item.json.failed_tests }}"
+            }
+          ]
+        }
+      },
+      "id": "failure-output",
+      "name": "Failure Output",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [3320, 300]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "status",
+              "value": "rejected"
+            },
+            {
+              "name": "message",
+              "value": "Tests were rejected during review"
+            },
+            {
+              "name": "feedback",
+              "value": "={{ $json.response.feedback }}"
+            }
+          ]
+        }
+      },
+      "id": "rejection-output",
+      "name": "Rejection Output",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [2220, 360]
+    }
+  ],
+  "connections": {
+    "Start TDD Process": {
+      "main": [[{"node": "Configuration", "type": "main", "index": 0}]]
+    },
+    "Configuration": {
+      "main": [[{"node": "Parse Planning Doc", "type": "main", "index": 0}]]
+    },
+    "Parse Planning Doc": {
+      "main": [[{"node": "Generate Tests (OpenRouter)", "type": "main", "index": 0}]]
+    },
+    "Generate Tests (OpenRouter)": {
+      "main": [[{"node": "Extract Test Code", "type": "main", "index": 0}]]
+    },
+    "Extract Test Code": {
+      "main": [[{"node": "Request Test Approval", "type": "main", "index": 0}]]
+    },
+    "Request Test Approval": {
+      "main": [[{"node": "Wait for Approval", "type": "main", "index": 0}]]
+    },
+    "Wait for Approval": {
+      "main": [[{"node": "Check Approval Status", "type": "main", "index": 0}]]
+    },
+    "Check Approval Status": {
+      "main": [[{"node": "If Approved", "type": "main", "index": 0}]]
+    },
+    "If Approved": {
+      "main": [
+        [{"node": "Generate Code (OpenRouter)", "type": "main", "index": 0}],
+        [{"node": "Rejection Output", "type": "main", "index": 0}]
+      ]
+    },
+    "Generate Code (OpenRouter)": {
+      "main": [[{"node": "Extract Implementation", "type": "main", "index": 0}]]
+    },
+    "Extract Implementation": {
+      "main": [[{"node": "Code Review (OpenRouter)", "type": "main", "index": 0}]]
+    },
+    "Code Review (OpenRouter)": {
+      "main": [[{"node": "Run Tests", "type": "main", "index": 0}]]
+    },
+    "Run Tests": {
+      "main": [[{"node": "Check Test Success", "type": "main", "index": 0}]]
+    },
+    "Check Test Success": {
+      "main": [
+        [{"node": "Success Output", "type": "main", "index": 0}],
+        [{"node": "Failure Output", "type": "main", "index": 0}]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2024-01-01T00:00:00.000Z",
+  "versionId": "1"
+} 

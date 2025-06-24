@@ -1,0 +1,58 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Feature Request",
+  "description": "Schema for validating feature requests in the TDD workflow",
+  "type": "object",
+  "properties": {
+    "description": {
+      "type": "string",
+      "description": "Detailed description of the feature to implement",
+      "minLength": 10,
+      "maxLength": 2000
+    },
+    "complexity": {
+      "type": "string",
+      "description": "Estimated complexity of the feature",
+      "enum": ["simple", "medium", "complex"]
+    },
+    "requirements": {
+      "type": "array",
+      "description": "List of specific requirements for the feature",
+      "items": {
+        "type": "string",
+        "minLength": 5
+      },
+      "minItems": 1,
+      "maxItems": 10
+    },
+    "test_categories": {
+      "type": "array",
+      "description": "Required test categories to prevent mesa-optimization",
+      "items": {
+        "type": "string",
+        "enum": [
+          "happy_path",
+          "edge_cases",
+          "error_handling",
+          "performance",
+          "integration",
+          "property_based",
+          "security"
+        ]
+      },
+      "minItems": 3,
+      "uniqueItems": true
+    },
+    "acceptance_criteria": {
+      "type": "array",
+      "description": "Clear criteria for feature acceptance",
+      "items": {
+        "type": "string",
+        "minLength": 10
+      },
+      "minItems": 1
+    }
+  },
+  "required": ["description", "complexity", "requirements", "test_categories"],
+  "additionalProperties": false
+}

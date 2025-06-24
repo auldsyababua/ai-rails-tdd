@@ -1,0 +1,105 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Validation Result",
+  "description": "Schema for test execution and validation results",
+  "type": "object",
+  "properties": {
+    "feature_id": {
+      "type": "string"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "test_results": {
+      "type": "object",
+      "properties": {
+        "total_tests": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "passed": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "failed": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "skipped": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "coverage_percentage": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "execution_time_seconds": {
+          "type": "number",
+          "minimum": 0
+        }
+      },
+      "required": ["total_tests", "passed", "failed"]
+    },
+    "quality_checks": {
+      "type": "object",
+      "properties": {
+        "linting_passed": {
+          "type": "boolean"
+        },
+        "type_checking_passed": {
+          "type": "boolean"
+        },
+        "security_scan_passed": {
+          "type": "boolean"
+        },
+        "documentation_complete": {
+          "type": "boolean"
+        },
+        "complexity_within_limits": {
+          "type": "boolean"
+        }
+      }
+    },
+    "failed_tests": {
+      "type": "array",
+      "description": "Details of failed tests",
+      "items": {
+        "type": "object",
+        "properties": {
+          "test_name": {
+            "type": "string"
+          },
+          "error_message": {
+            "type": "string"
+          },
+          "stack_trace": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "human_review": {
+      "type": "object",
+      "properties": {
+        "approved": {
+          "type": "boolean"
+        },
+        "reviewer": {
+          "type": "string"
+        },
+        "feedback": {
+          "type": "string"
+        },
+        "approval_timestamp": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["approved", "reviewer"]
+    }
+  },
+  "required": ["feature_id", "timestamp", "test_results", "quality_checks"],
+  "additionalProperties": false
+}
