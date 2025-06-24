@@ -580,7 +580,7 @@ When Sequential-Thinking recommends tools, expect confidence scores:
 
 ## Required Outputs
 
-You must produce TWO distinct outputs:
+You must produce THREE distinct outputs:
 
 ### 1. Human-Readable Design Document (Markdown)
 A comprehensive planning document for human review containing:
@@ -593,7 +593,17 @@ A comprehensive planning document for human review containing:
 - **Dependencies**: External libraries and versions
 - **Timeline Estimates**: Complexity and effort assessment
 
-### 2. Machine-Readable JSON Output
+### 2. Technical Specification for Coder (JSON)
+A detailed technical spec for the Coder Agent containing:
+- **User Stories**: What the feature should accomplish
+- **Technology Stack**: Languages, libraries, versions
+- **Architecture Decisions**: Patterns, strategies, data formats
+- **Implementation Requirements**: Classes, methods, parameters
+- **Data Models**: Complete field specifications
+- **Example Usage**: How the feature will be used
+- **Constraints**: Performance, security, error handling
+
+### 3. Test Specification for Test Designer (JSON)
 A structured JSON object for the Test Designer Agent containing:
 ```json
 {
