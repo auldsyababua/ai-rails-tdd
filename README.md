@@ -1,102 +1,90 @@
-# AI Rails TDD
+# ⚠️ DEPRECATED - Moved to Context Engineer CLI Tool
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
-[![n8n compatible](https://img.shields.io/badge/n8n-compatible-orange.svg)](https://n8n.io)
+This repository has been deprecated and its TDD workflow has been integrated into the new **Context Engineer CLI Tool**.
 
-A bounded, human-controlled AI agent orchestration system that implements Test-Driven Development (TDD) with anti-mesa-optimization measures.
+## 🚀 New Repository
 
-## 🚀 Features
+Please use the new Context Engineer CLI Tool instead:
+- **Repository**: [context-engineer-cli-tool](https://github.com/yourusername/context-engineer-cli-tool)
 
-- **🧪 TDD-First Architecture**: Tests are generated before implementation
-- **👤 Human-in-the-Loop**: All critical outputs require human approval
-- **🛡️ Anti-Mesa-Optimization**: Prevents AI from gaming the tests
-- **📦 Portable System**: Works with any Python/JavaScript project
-- **✅ Real Test Execution**: Uses pytest to actually validate code
-- **🗂️ Standardized Structure**: Consistent file organization across projects
+## What's Included?
 
-## 📖 Documentation
+All TDD features from ai-rails-tdd have been preserved and enhanced:
 
-- [**Getting Started**](docs/getting-started.md) - Installation, quick start, and configuration
+### Core TDD Workflow
+- ✅ Test-first development approach
+- ✅ Agent handoff mechanism (Issue #17)
+- ✅ Specialized agents for each phase
+- ✅ n8n workflow automation support
 
-- **User Guide**
-  - [Basic Usage](docs/user-guide/basic-usage.md)
-  - [Workflows](docs/user-guide/workflows.md)
-  - [Prompt Management](docs/user-guide/prompt-management.md)
-  - [Troubleshooting](docs/user-guide/troubleshooting.md)
+### Enhanced Features
+- 🎯 Auto-pilot mode that handles the entire TDD cycle
+- 📝 Structured project phases (Planning → Testing → Implementation → Review)
+- 🔄 Automatic git commits at each phase
+- 🤖 Specialized agent models for optimal performance
+- 📊 Task tracking and accountability
 
-- **Developer Guide**
-  - [Architecture](docs/developer/architecture.md)
-  - [API Reference](docs/developer/api-reference.md)
-  - [Testing](docs/developer/testing.md)
+## Migration Guide
 
-## 🎯 Quick Start
+1. **Install Context Engineer CLI Tool**:
+   ```bash
+   git clone https://github.com/yourusername/context-engineer-cli-tool
+   cd context-engineer-cli-tool
+   ./setup.sh
+   ```
 
-```bash
-# Clone the repository
-git clone https://github.com/Auldsyababua/ai-rails-tdd.git
-cd ai-rails-tdd
+2. **Create a TDD project**:
+   ```bash
+   # Interactive setup
+   ce
+   
+   # Choose "New Project" → "API/Microservice" (or your project type)
+   # The TDD workflow is built into the phases
+   ```
 
-# Install the CLI
-sudo ./install.sh
+3. **Use Auto-pilot for TDD**:
+   ```bash
+   # Automatically progresses through TDD phases
+   cea
+   
+   # Phases include:
+   # - Planning (requirements)
+   # - Testing (test generation)
+   # - Implementation (code to pass tests)
+   # - Review & Refactoring
+   ```
 
-# Initialize in your project
-cd /your/project
-ai-rails init
+## Where Are the Agents?
 
-# Start services
-ai-rails-start
+All specialized agents from ai-rails-tdd are documented as enhancement issues:
 
-# Open n8n and import a workflow!
-```
+- **Debugger Agent**: Issue #11
+- **Documentation Agent**: Issue #12
+- **Refactor Agent**: Issue #13
+- **n8n Flow Creator**: Issue #14
+- **Task Tracker MCP**: Issue #15
+- **Overseer Agent**: Issue #16
+- **Agent Handoff**: Issue #17
 
-See the [Getting Started Guide](docs/getting-started.md) for detailed instructions.
+## Key Improvements
 
-## 🏗️ How It Works
+1. **Integrated Workflow**: No need for separate n8n setup - it's all in the CLI
+2. **Better Handoffs**: Automatic context passing between phases
+3. **Session Persistence**: Resume where you left off
+4. **Local-First**: Works with local LLMs via Ollama
+5. **Safety Rails**: Built-in mesa-optimization prevention
 
-```
-Planning Doc → Generate Tests → Human Approval → Generate Code → Run Tests
-     ↓              ↓                 ↓                ↓             ↓
-  You write    AI creates      You review       AI writes    Tests validate
-```
+## n8n Integration
 
-1. **Define** your feature or app using our planning template
-2. **Generate** comprehensive tests with AI assistance
-3. **Review** and approve the tests
-4. **Implement** code that passes all tests
-5. **Validate** with real test execution
+If you still want to use n8n workflows:
+- Issue #14 covers the n8n Flow Creator Agent
+- Issue #18 includes local n8n as an optional service bundle
+- The system can generate n8n workflows for your projects
 
-## 🤝 Contributing
+## Questions?
 
-We love contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
-
-- 📋 [Report bugs](https://github.com/Auldsyababua/ai-rails-tdd/issues)
-- 💡 [Request features](https://github.com/Auldsyababua/ai-rails-tdd/issues)
-- 🔧 [Submit pull requests](https://github.com/Auldsyababua/ai-rails-tdd/pulls)
-
-## 📝 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🔒 Security
-
-Please see our [Security Policy](SECURITY.md) for reporting vulnerabilities.
-
-## 🗺️ Roadmap
-
-Check out our [Roadmap](docs/misc/roadmap.md) for upcoming features and improvements.
-
-## 💬 Community
-
-- [GitHub Discussions](https://github.com/Auldsyababua/ai-rails-tdd/discussions)
-- [Issue Tracker](https://github.com/Auldsyababua/ai-rails-tdd/issues)
-
-## 🙏 Acknowledgments
-
-- Built with [n8n](https://n8n.io) workflow automation
-- Powered by [Ollama](https://ollama.ai) and [OpenAI](https://openai.com)
-- Inspired by the TDD methodology and AI safety principles
+Please open issues in the new repository. All future development will happen there.
 
 ---
 
-Made with ❤️ by the AI Rails community
+Thank you for using ai-rails-tdd! The Context Engineer CLI Tool carries forward all its best features with a more streamlined experience. 🚀
